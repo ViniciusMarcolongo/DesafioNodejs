@@ -8,6 +8,27 @@ const PORT = 3333;
 const server = http.createServer(async (req, res) => {
     const {method, url} = req;
 
+    if(method === "GET" && url.startsWith("/tasks")) {
+        const db = await readDatabase()
+
+        const tasks = Array.isArray(db.tasks) ? db.tasks : []
+
+        const fullUrl = new URL(req.url,`http://${req.headers.host}`)
+        const qTitle = fullUrl.searchParams.get("title")
+        const qDescription = fullUrl.searchParams.get("description")
+        const t = qTitle ? qTitle.trim().toLowerCase() : null
+        const d = qDescription ? qDescription.trim().toLowerCase() : null
+
+        const filtered = tasks.filter(task => {
+            const titleOk = !t || String(task.title || "").toLowerCase().includes(t)
+            const descOk = !d || String(task.description || "").toLowerCase().includes(d)
+            return titleOk && descOk
+        })
+
+        res.writeHead(200, { "Content-Type": "application/json" });
+        return res.end(JSON.stringify(filtered));
+    }
+
     if(method === "GET" && url === "/health") {
         res.writeHead(200, {"Content-Type": "application/json"});
         res.end(JSON.stringify({status: "ok"}));
