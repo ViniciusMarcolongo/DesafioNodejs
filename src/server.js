@@ -74,6 +74,72 @@ const server = http.createServer(async (req, res) => {
         }
     }
 
+    if (method === "PUT") {
+        const fullUrl = new URL(req.url, `http://${req.headers.host}`);
+
+        const pathname = fullUrl.pathname
+        const match = pathname.match(/^\/tasks\/([^/]+)$/)
+
+        if (!match) {
+        } else {
+            const id = match[1];
+
+            try {
+                const body = await readJsonBody(req);
+                const wantsTitle = Object.prototype.hasOwnProperty.call(body, "title");
+                const wantsDesc = Object.prototype.hasOwnProperty.call(body, "description");
+
+                if (!wantsTitle && !wantsDesc) {
+                    res.writeHead(400, {"Content-Type": "application/json" })
+                    return res.end(JSON.stringify({
+                        error: "Envie ao menos um campo: title e/ou description."
+                    }))
+                }
+
+                if (wantsTitle) {
+                    const ok = typeof body.title === "string" && body.title.trim() !== "";
+                    if (!ok) {
+                        res.writeHead(400, { "Content-Type": "application/json" });
+                        return res.end(JSON.stringify({ error: "title deve ser string não vazia." }));
+                    }
+                }
+
+                if (wantsDesc) {
+                    const ok = typeof body.description === "string" && body.description.trim() !== "";
+                    if (!ok){
+                        res.writeHead(400, { "Content-Type": "application/json" });
+                        return res.end(JSON.stringify({ error: "description deve ser string não vazia." }));
+                    }
+                }
+
+                const db = await readDatabase();
+                const tasks = Array.isArray(db.tasks) ? db.tasks : [];
+                const index = tasks.findIndex(t => t.id === id);
+
+                if (index === -1){
+                    res.writeHead(404, { "Content-Type": "application/json" });
+                    return res.end(JSON.stringify({ error: `Task com id '${id}' não encontrada.` }));
+                }
+
+                const task = tasks[index];
+                if (wantsTitle) task.title = body.title.trim();
+                if (wantsDesc) task.description = body.description.trim();
+
+                task.updated_at = new Date().toISOString();
+
+                db.tasks = tasks;
+                await writeDatabase(db);
+
+                res.writeHead(200, { "Content-Type": "application/json" });
+                return res.end(JSON.stringify(task));
+
+            } catch (err) {
+                res.writeHead(400, { "Content-Type": "application/json" });
+                return res.end(JSON.stringify({ error: err.message || "Invalid JSON" }));
+            }
+        }
+    }
+
     res.writeHead(404, {"Content-Type": "application/json"});
     res.end(JSON.stringify({message: "Rota não encontrada"}));
 });
