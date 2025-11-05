@@ -140,6 +140,46 @@ const server = http.createServer(async (req, res) => {
         }
     }
 
+    if (method === "DELETE") {
+        const fullUrl = new URL(req.url, `http://${req.headers.host}`)
+
+        const pathname = fullUrl.pathname;
+
+        const parts = pathname.split("/").filter(Boolean);
+
+        const isTasksId = parts.length === 2 && parts[0] === "tasks";
+        if (!isTasksId) {
+
+        } else {
+            const id = parts[1];
+            
+            try {
+                const db = await readDatabase();
+                const tasks = Array.isArray(db.tasks) ? db.tasks : [];
+
+                const index = tasks.findIndex(t => t.id === id);
+
+                if(index === -1){
+                    res.writeHead(404, { "Content-Type": "application/json" });
+                    return res.end(JSON.stringify({ error: `Task com id '${id}' não encontrada.` }));
+                }
+
+                tasks.splice(index, 1);
+
+                db.tasks = tasks;
+                await writeDatabase(db);
+
+                res.writeHead(204);
+                return res.end();
+
+
+            } catch (err) {
+                res.writeHead(500, { "Content-Type": "application/json" });
+                return res.end(JSON.stringify({ error: "Erro interno ao remover a tarefa." }));
+            }
+        }
+    }
+
     res.writeHead(404, {"Content-Type": "application/json"});
     res.end(JSON.stringify({message: "Rota não encontrada"}));
 });
