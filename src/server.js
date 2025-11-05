@@ -3,6 +3,7 @@ import { readDatabase, writeDatabase} from "./db/database.js";
 import {readJsonBody} from "./utils/readJsonBody.js";
 import { randomUUID } from "node:crypto";
 
+
 const PORT = 3333;
 
 const server = http.createServer(async (req, res) => {
@@ -179,6 +180,49 @@ const server = http.createServer(async (req, res) => {
             }
         }
     }
+
+    if (method === "PATCH") {
+        const fullUrl = new URL(req.url, `http://${req.headers.host}`);
+
+        const pathname = fullUrl.pathname;
+
+        const parts = pathname.split("/").filter(Boolean);
+
+        const isToggle = parts.length === 3 && parts[0] === "tasks" && parts[2] === "complete";
+
+        if (!isToggle) {
+
+        } else {
+            const id = parts[1];
+
+            try{
+                const db = await readDatabase();
+                const tasks = Array.isArray(db.tasks) ? db.tasks : [];
+                const index = tasks.findIndex(t => t.id === id);
+
+                if (index === -1) {
+                    res.writeHead(404, { "Content-Type": "application/json" });
+                    return res.end(JSON.stringify({ error: `Task com id '${id}' não encontrada.` }));
+                }
+
+                const task = tasks[index]
+                const now = new Date().toISOString();
+                task.completed_at = task.completed_at ? null : now;
+                task.updated_at = now;
+
+                db.tasks = tasks;
+                await writeDatabase(db);
+
+                res.writeHead(200, { "Content-Type": "application/json" });
+                return res.end(JSON.stringify(task));
+
+            } catch (err){
+                res.writeHead(500, { "Content-Type": "application/json" });
+                return res.end(JSON.stringify({ error: "Erro interno ao acessar o banco." }));
+            }
+        }
+    }
+
 
     res.writeHead(404, {"Content-Type": "application/json"});
     res.end(JSON.stringify({message: "Rota não encontrada"}));

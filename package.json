@@ -9,5 +9,8 @@
   "type": "module",
   "scripts": {
     "start": "node src/server.js"
+  },
+  "dependencies": {
+    "csv-parse": "^6.1.0"
   }
 }

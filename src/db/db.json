@@ -15,9 +15,33 @@
       "id": "b1b29fc4-182c-4798-b99d-2702e78efb90",
       "title": "Novo título",
       "description": "Só descrição ok",
-      "completed_at": null,
+      "completed_at": "2025-11-05T14:22:27.159Z",
       "created_at": "2025-10-31T18:21:41.397Z",
-      "updated_at": "2025-11-04T20:09:11.762Z"
+      "updated_at": "2025-11-05T14:22:27.159Z"
+    },
+    {
+      "id": "27730e32-741b-4918-9623-36e12a255f61",
+      "title": "Task 01",
+      "description": "Descrição da Task 01",
+      "completed_at": null,
+      "created_at": "2025-11-05T14:45:16.014Z",
+      "updated_at": "2025-11-05T14:45:16.014Z"
+    },
+    {
+      "id": "7b440c0f-c17d-4172-9b58-4834f7120910",
+      "title": "Task 02",
+      "description": "Descrição da Task 02",
+      "completed_at": null,
+      "created_at": "2025-11-05T14:45:16.026Z",
+      "updated_at": "2025-11-05T14:45:16.026Z"
+    },
+    {
+      "id": "2a12760e-02ae-442a-bdf9-c9291781a6c5",
+      "title": "Task 03",
+      "description": "Descrição da Task 03",
+      "completed_at": null,
+      "created_at": "2025-11-05T14:45:16.029Z",
+      "updated_at": "2025-11-05T14:45:16.029Z"
     }
   ]
 }
